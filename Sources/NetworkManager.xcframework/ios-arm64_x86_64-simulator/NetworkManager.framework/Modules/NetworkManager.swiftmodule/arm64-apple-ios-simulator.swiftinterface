@@ -1,0 +1,157 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-module-flags: -target arm64-apple-ios14.4-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name NetworkManager
+import Foundation
+@_exported import NetworkManager
+import Swift
+import SystemConfiguration
+public protocol URLSessionProtocol {
+  typealias DataTaskResult = (Foundation.Data?, Foundation.URLResponse?, Swift.Error?) -> Swift.Void
+  func dataTask(request: Foundation.URLRequest, completionHandler: @escaping Self.DataTaskResult) -> Foundation.URLSessionDataTask
+}
+extension URLSession : NetworkManager.URLSessionProtocol {
+  public func dataTask(request: Foundation.URLRequest, completionHandler: @escaping Foundation.URLSession.DataTaskResult) -> Foundation.URLSessionDataTask
+}
+public typealias HTTPHeaders = [Swift.String : Swift.String]
+public protocol EndpointProtocol {
+  var baseURL: Foundation.URL { get }
+  var path: Swift.String { get }
+  var method: NetworkManager.HTTPMethod { get }
+  var task: NetworkManager.HTTPTask { get }
+  var headers: NetworkManager.HTTPHeaders? { get }
+}
+public typealias ParametersRefactor = [[Swift.String : Any]]
+public enum HTTPTask {
+  case requestPlain
+  case requestParameters(_: NetworkManager.ParametersRefactor?, urlQuery: NetworkManager.ParametersRefactor? = nil)
+  case requestConsents(_: Swift.String, urlQuery: NetworkManager.ParametersRefactor? = nil)
+}
+@_hasMissingDesignatedInitializers public class NetworkErrorMessages {
+  @objc deinit
+}
+public enum NetworkError : Swift.Error, Swift.Equatable {
+  case badRequest
+  case forbidden
+  case resourceNotFound
+  case unAuthonticated
+  case generalError
+  case internalServer
+  case noInternet
+  case timeout
+  case noData
+  case custom(error: Swift.String)
+  case parser(error: Swift.String)
+  case none
+  public static func handleErrorResponse(errorCode: Swift.Int) -> NetworkManager.NetworkError
+  public static func getTheErrorMessage(error: NetworkManager.NetworkError) -> Swift.String
+  public static func == (a: NetworkManager.NetworkError, b: NetworkManager.NetworkError) -> Swift.Bool
+}
+public protocol NetworkClient {
+  func request<T>(type: T.Type, service: NetworkManager.EndpointProtocol, completion: @escaping (Swift.Result<T, NetworkManager.NetworkError>) -> Swift.Void) where T : Swift.Decodable
+}
+public class DefaultNetworkClient : NetworkManager.NetworkClient {
+  public var session: NetworkManager.URLSessionProtocol
+  public init(session: Foundation.URLSession = URLSession(configuration: DefaultURLSessionConfiguration().configuration))
+  public func request<T>(type: T.Type, service: NetworkManager.EndpointProtocol, completion: @escaping (Swift.Result<T, NetworkManager.NetworkError>) -> Swift.Void) where T : Swift.Decodable
+  @objc deinit
+}
+public struct EmptyResponse : Swift.Decodable {
+  public init(from decoder: Swift.Decoder) throws
+}
+public class DefaultURLSessionConfiguration {
+  public var configuration: Foundation.URLSessionConfiguration
+  public init(configuration: Foundation.URLSessionConfiguration = .default)
+  @objc deinit
+}
+public enum ReachabilityError : Swift.Error {
+  case FailedToCreateWithAddress(Darwin.sockaddr_in)
+  case FailedToCreateWithHostname(Swift.String)
+  case UnableToSetCallback
+  case UnableToSetDispatchQueue
+}
+public let ReachabilityChangedNotification: Foundation.NSNotification.Name
+public func callback(reachability: SystemConfiguration.SCNetworkReachability, flags: SystemConfiguration.SCNetworkReachabilityFlags, info: Swift.UnsafeMutableRawPointer?)
+public class Reachability {
+  public typealias NetworkReachable = (NetworkManager.Reachability) -> ()
+  public typealias NetworkUnreachable = (NetworkManager.Reachability) -> ()
+  public enum NetworkStatus : Swift.CustomStringConvertible {
+    case notReachable, reachableViaWiFi, reachableViaWWAN
+    public var description: Swift.String {
+      get
+    }
+    public static func == (a: NetworkManager.Reachability.NetworkStatus, b: NetworkManager.Reachability.NetworkStatus) -> Swift.Bool
+    public var hashValue: Swift.Int {
+      get
+    }
+    public func hash(into hasher: inout Swift.Hasher)
+  }
+  public var whenReachable: NetworkManager.Reachability.NetworkReachable?
+  public var whenUnreachable: NetworkManager.Reachability.NetworkUnreachable?
+  public var reachableOnWWAN: Swift.Bool
+  public var notificationCenter: Foundation.NotificationCenter
+  public var currentReachabilityString: Swift.String {
+    get
+  }
+  public var currentReachabilityStatus: NetworkManager.Reachability.NetworkStatus {
+    get
+  }
+  required public init(reachabilityRef: SystemConfiguration.SCNetworkReachability)
+  convenience public init?(hostname: Swift.String)
+  convenience public init?()
+  @objc deinit
+}
+extension Reachability {
+  public func startNotifier() throws
+  public func stopNotifier()
+  public var isReachable: Swift.Bool {
+    get
+  }
+  public var isReachableViaWWAN: Swift.Bool {
+    get
+  }
+  public var isReachableViaWiFi: Swift.Bool {
+    get
+  }
+  public var description: Swift.String {
+    get
+  }
+}
+public struct SuccessResponse : Swift.Codable {
+  public init(from decoder: Swift.Decoder) throws
+  public func encode(to encoder: Swift.Encoder) throws
+}
+public let baseUrl: Swift.String
+public enum ApiEndpoints : NetworkManager.EndpointProtocol {
+  case photos(pages: [[Swift.String : Any]])
+  public var baseURL: Foundation.URL {
+    get
+  }
+  public var path: Swift.String {
+    get
+  }
+  public var method: NetworkManager.HTTPMethod {
+    get
+  }
+  public var task: NetworkManager.HTTPTask {
+    get
+  }
+  public var headers: NetworkManager.HTTPHeaders? {
+    get
+  }
+}
+public enum HTTPMethod : Swift.String {
+  case get
+  case post
+  case put
+  case delete
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.String)
+}
+extension NetworkManager.Reachability.NetworkStatus : Swift.Equatable {}
+extension NetworkManager.Reachability.NetworkStatus : Swift.Hashable {}
+extension NetworkManager.HTTPMethod : Swift.Equatable {}
+extension NetworkManager.HTTPMethod : Swift.Hashable {}
+extension NetworkManager.HTTPMethod : Swift.RawRepresentable {}
