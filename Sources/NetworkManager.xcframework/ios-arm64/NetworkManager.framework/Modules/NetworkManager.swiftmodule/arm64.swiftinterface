@@ -120,7 +120,7 @@ public struct SuccessResponse : Swift.Codable {
   public init(from decoder: Swift.Decoder) throws
   public func encode(to encoder: Swift.Encoder) throws
 }
-public let baseUrl: Swift.String
+public var baseUrl: Swift.String
 public enum ApiEndpoints : NetworkManager.EndpointProtocol {
   case photos(pages: [[Swift.String : Any]])
   public var baseURL: Foundation.URL {
